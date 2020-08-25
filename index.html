@@ -1,0 +1,478 @@
+<html>
+
+<head>
+  <title>Depression Rates Accross Gender, Age, Location, and Socioeconomic Level</title>
+
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+
+  <style>
+    .axis {
+      color: rgb(66, 63, 63);
+    }
+
+    #whole {
+      margin-left: 2%;
+      margin-right: 10%;
+    }
+
+    .numbers {
+      color: rgb(66, 63, 63);
+      font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    }
+
+    #head1 {
+      font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+      padding-left: 10%;
+      margin-top: 30px;
+      font-weight: bold;
+    }
+
+    #head2 {
+      font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+      padding-left: 10%;
+      font-style: italic;
+      color: rgb(63, 63, 63)
+    }
+
+    #head4 {
+      font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+      padding-left: 10%;
+      margin-right: 50%;
+    }
+
+    #graph_exp {
+      font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+      padding-left: 10%;
+      margin-right: 20%;
+      color: rgb(48, 48, 48);
+    }
+
+    h3 {
+      font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    }
+
+    #incomePlot {
+      margin-left: 10%;
+      margin-right: 10%;
+    }
+
+    #barchart {
+      margin-left: 10%;
+      margin-right: 10%;
+    }
+
+    #healthplot {
+      margin-left: 10%;
+      margin-right: 10%;
+    }
+
+    .text {
+      font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    }
+
+    .gridlines line {
+      stroke: lightgrey;
+    }
+  </style>
+
+</head>
+
+<body>
+  <div id="whole">
+    <h2 id="head1">Depression</h2>
+    <h3 id="head2">How Gender, Race, and Income Effect Depression Rates</h3>
+    <h4 id="head4"> When it comes to depression, the illness is far more complex than it seems. There are various
+      external factors effecting the rates of depression worldwide. The visualizations below illustrate quantitative
+      interpretations of these factors.</h4>
+    <svg id="incomePlot" width="1000" height="500" style="background-color: rgb(229, 239, 248);">
+      <text id="legendM" x="700" y="100" font-family="Cambria, Cochin, Georgia, Times, 'Times New Roman', serif"
+        font-size="20px" fill="CornflowerBlue">Male</text>
+      <text id="legendF" x="750" y="100" font-family="Cambria, Cochin, Georgia, Times, 'Times New Roman', serif"
+        font-size="20px" fill="Salmon">Female</text>
+    </svg>
+    <div id="Legend" class="legend"> </div>
+    <script>
+      var data_income_canada = [
+        { "income": "< $10,000", "male_d": 16.9, "female_d": 19.7, "total_d": 18.4 },
+        { "income": "$10,000-$14,999", "male_d": 11.2, "female_d": 18.5, "total_d": 16.1 },
+        { "income": "$15,000-$19,999", "male_d": 13, "female_d": 17.5, "total_d": 15.7 },
+        { "income": "$20,000-$29,999", "male_d": 8.4, "female_d": 13.5, "total_d": 11.3 },
+        { "income": "$30,000-$39,999", "male_d": 8, "female_d": 11.9, "total_d": 10.1 },
+        { "income": "$40,000-$49,999", "male_d": 9, "female_d": 12.1, "total_d": 10.6 },
+        { "income": "$50,000-$59,999", "male_d": 7.5, "female_d": 13.4, "total_d": 10.5 },
+        { "income": "$60,000-$79,999", "male_d": 7, "female_d": 12.7, "total_d": 9.7 },
+        { "income": "$80,000 or more", "male_d": 7.9, "female_d": 14, "total_d": 10.6 }
+      ];
+      const svg = d3.select("svg#incomePlot");
+      const width = svg.attr("width");
+      const height = svg.attr("height");
+      const margin = { top: 40, right: 40, bottom: 70, left: 70 };
+
+      const plotWidth = width - margin.left - margin.right;
+      const plotHeight = height - margin.top - margin.bottom;
+
+
+      let annotations = svg.append("g").attr("id", "annotations");
+      let plotArea = svg.append("g").attr("id", "points")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      const incomeScale = d3.scaleBand().domain(data_income_canada.map(function (d) { return d.income; })).range([0, plotWidth]).padding(0.45);
+      const depScale = d3.scaleLinear().domain([0, 25]).range([plotHeight, 0]);
+
+      // y axis
+      let leftAxis = d3.axisLeft(depScale);
+      annotations.append("g")
+        .attr("class", "axis")
+        .attr("transform", "translate(" + (margin.left - 1) + "," + margin.top + ")")
+        .call(leftAxis);
+      annotations.append("text")
+        .attr("class", "text")
+        .attr("text-anchor", "middle")
+        .attr("transform", "translate(" + (margin.left / 2) + "," + ((plotHeight / 2) + margin.bottom) + ")rotate(-90)")
+        .text("Depression Rate (%)");
+
+      // x axis
+      let bottomAxis = d3.axisBottom(incomeScale);
+      annotations.append("g")
+        .attr("class", "axis")
+        .attr("transform", "translate(" + margin.left + "," + (plotHeight + margin.top) + ")")
+        .call(bottomAxis);
+      annotations.append("text")
+        .attr("class", "text")
+        .attr("transform", "translate(" + (plotWidth / 2 + margin.left) + " ," +
+          (plotHeight + (margin.top + 45)) + ")")
+        .style("text-anchor", "middle")
+        .text("Income Range");
+
+      // plotting bars
+      data_income_canada.forEach((d, i) => {
+        let rectF = plotArea.append("rect")
+          .attr("x", incomeScale(d['income']))
+          .attr("width", incomeScale.bandwidth())
+          .attr("y", depScale(d['female_d']))
+          .attr("height", plotHeight - depScale(d['female_d']))
+          .attr("fill", "Salmon");
+        let rectM = plotArea.append("rect")
+          .attr("x", incomeScale(d['income']))
+          .attr("width", incomeScale.bandwidth())
+          .attr("y", depScale(d['male_d']))
+          .attr("height", plotHeight - depScale(d['male_d']))
+          .attr("fill", "CornflowerBlue");
+
+      });
+    </script>
+
+    <h4 id="graph_exp">
+      This graph presents the relationship between household income and depression rates in Canada. The low income
+      family groups generally struggle more with depression.
+      </h3>
+      <br>
+      <p id="g1">
+        <svg id="barchart" width="1000" height="500" style="background-color: rgb(229, 239, 248);">
+          <text id="legendM" x="820" y="100" font-family="Cambria, Cochin, Georgia, Times, 'Times New Roman', serif"
+            font-size="20px" fill="CornflowerBlue">Male</text>
+          <text id="legendF" x="870" y="100" font-family="Cambria, Cochin, Georgia, Times, 'Times New Roman', serif"
+            font-size="20px" fill="Salmon">Female</text></svg>
+        <script>
+          let depression_rate = [
+            { "percentage": "Hispanic", "male_d": 6, "female_d": 10.5 },
+            { "percentage": "Non-Hispanic white", "male_d": 5.2, "female_d": 10.5 },
+            { "percentage": "Non-Hispanic black", "male_d": 7.1, "female_d": 11 },
+            { "percentage": "Non-Hispanic Asian", "male_d": 2.2, "female_d": 3.9 }
+          ];
+
+          const svg1 = d3.select("#barchart");
+          const width1 = svg.attr("width")
+          const height1 = svg.attr("height")
+
+          let xScale = d3.scaleBand()
+            .domain(depression_rate.map((s) => s.percentage))
+            .range([0, width1 - 20])
+            .padding(0.2)
+
+          let yScale = d3.scaleLinear()
+            .domain([0, 12])
+            .range([height1 - 50, 50]);
+
+
+          let xAxis = d3.axisBottom(xScale)
+          svg1.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(" + 50 + "," + 450 + ")")
+            .call(xAxis);
+          svg1.append("text")
+            .attr("class", "text")
+            .attr("transform", "translate(500,475)")
+            .style("text-anchor", "middle")
+            .text("Race")
+
+
+          let yAxis = d3.axisLeft(yScale).ticks(5)
+          svg1.append("g")
+            .attr("class", "y axis")
+            .attr("transform", "translate(50,0)")
+            .call(yAxis)
+
+          svg1.append("text")
+            .attr("class", "text")
+            .attr("transform", "translate(25,250)rotate(-90)")
+            .style("text-anchor", "middle")
+            .text("Depression Rate (%)")
+
+          let male_plot = svg1.append("g")
+            .attr("id", "male")
+
+          depression_rate.forEach((d, i) => {
+            let male_rect = male_plot.append("rect")
+              .attr("x", xScale(d['percentage']) + 50)
+              .attr("width", xScale.bandwidth() / 2)
+              .attr("y", yScale(d['male_d']))
+              .attr("height", height1 - yScale(d['male_d']) - 50)
+              .attr("fill", "CornflowerBlue");
+          });
+
+          let female_plot = svg1.append("g")
+            .attr("id", "female")
+
+          depression_rate.forEach((d, i) => {
+            let female_rect = female_plot.append("rect")
+              .attr("x", xScale(d['percentage']) + 50)
+              .attr("width", xScale.bandwidth() / 2)
+              .attr("y", yScale(d['female_d']))
+              .attr("height", height1 - yScale(d['female_d'] - 1.5))
+              .attr('transform', 'translate(' + xScale.bandwidth() / 2 + ',0)')
+              .attr("fill", "Salmon");
+          });
+
+
+        </script>
+
+      </p>
+      <h4 id="graph_exp">
+        This exhibits the percentage of adults in the U.S. with depression from 2013 to 2016 by race and gender. Women
+        in general have higher depression rate than men, and non-hispanic black males and females have the highest
+        depression rates.
+      </h4>
+      <br>
+      <svg id="healthPlot" width="1000" height="500" style="background-color: rgb(229, 239, 248);">
+        <text id="legendCA" x="650" y="100" font-family="Cambria, Cochin, Georgia, Times, 'Times New Roman', serif"
+          font-size="20px" fill="cornflowerblue">California</text>
+        <text id="legendNY" x="750" y="100" font-family="Cambria, Cochin, Georgia, Times, 'Times New Roman', serif"
+          font-size="20px" fill="salmon">New York</text>
+      </svg>
+      <script>
+        const svg3 = d3.select("svg#healthPlot");
+        const width3 = svg.attr("width");
+        const height3 = svg.attr("height");
+        const margin3 = { top: 40, right: 40, bottom: 70, left: 70 };
+
+        const chartWidth3 = width3 - margin3.left - margin3.right;
+        const chartHeight3 = height3 - margin3.bottom - margin3.top;
+
+        let annotations3 = svg3.append("g").attr("id", "annotations");
+        let chartArea3 = svg3.append("g").attr("id", "points")
+          .attr("transform", "translate(" + margin3.left + "," + margin3.top + ")");
+
+        d3.csv("health.csv", d3.autoType)
+          .then((data) => {
+
+            const newYork = "NY";
+            const washington = "WA";
+            const california = "CA";
+            const oregon = "OR";
+
+            let nyData = [];
+            let caData = [];
+            let waData = [];
+            let orData = [];
+
+            let filteredNYData = [];
+            let filteredCAData = [];
+            let filteredWAData = [];
+            let filteredORData = [];
+
+            let filteredData = [];
+
+            // Preprocess data
+            // 1. Filter out data other than state NY, CA, WA, and OR
+
+            data.forEach(d => {
+              if (d['dma'].includes(newYork)) {
+                nyData.push(d);
+              } else if (d['dma'].includes(california)) {
+                caData.push(d);
+              } else if (d['dma'].includes(washington)) {
+                waData.push(d);
+              } else if (d['dma'].includes(oregon)) {
+                orData.push(d);
+              }
+            });
+
+
+            // 2. Helper function to reconstruct data to format:
+            // {
+            //     "year": String,
+            //     "numDisease": Number,
+            //     "numDepression": Number,
+            //     "percetage": Number,
+            //     "state": String
+            // }
+            function reconstructData(year, state, stateData, filteredData) {
+              let elem = {};
+              let numDisease = 0;
+              let numDepression = 0;
+              let percentage = 0;
+
+              stateData.forEach(d => {
+                for (var k in d) {
+                  if (k.includes(year.toString())) {
+                    if (k.includes("depression")) {
+                      numDepression += d[k];
+                    }
+                    numDisease += d[k];
+                  }
+                }
+              });
+
+              percentage = Math.round(numDepression * 10000.0 / numDisease) / 100;
+              elem = { "year": year, "numDisease": numDisease, "numDepression": numDepression, "percentage": percentage, "state": state };
+              filteredData.push(elem);
+            }
+
+
+            // 3. Push reconstructed data to new array: filteredData
+            for (let i = 2004; i <= 2017; i++) {
+              reconstructData(i, newYork, nyData, filteredData);
+              reconstructData(i, california, caData, filteredData);
+              reconstructData(i, washington, waData, filteredData);
+              reconstructData(i, oregon, orData, filteredData);
+
+              reconstructData(i, newYork, nyData, filteredNYData);
+              reconstructData(i, california, caData, filteredCAData);
+              reconstructData(i, washington, waData, filteredWAData);
+              reconstructData(i, oregon, orData, filteredORData);
+            }
+
+            // console.log(filteredData);
+
+            // Scale data
+            const percentageExtent = d3.extent(filteredData, d => d['percentage']);
+            const percentageScale = d3.scaleLinear()
+              .domain([percentageExtent[0] - 1.0, percentageExtent[1] + 1.0])
+              .range([chartHeight3, 0]);
+
+            const yearScale = d3.scaleLinear()
+              .domain([2002, 2018])
+              .range([0, chartWidth3]);
+
+            // Y axis
+            let leftAxis3 = d3.axisLeft(percentageScale)
+            let leftGridlines3 = d3.axisLeft(percentageScale)
+              .tickSize(-chartWidth3 - 10)
+              .tickFormat("")
+            annotations3.append("g")
+              .attr("class", "y axis")
+              .attr("transform", "translate(" + (margin3.left - 10) + "," + margin3.top + ")")
+              .call(leftAxis3);
+
+            annotations3.append("text")
+              .attr("transform", "translate(" + (margin3.left / 2 - 10) + " ," + (chartHeight3 / 2 + margin3.top) + ")rotate(-90)")
+              .style("text-anchor", "middle")
+              .text("Depression Rate (%)");
+
+            annotations3.append("g")
+              .attr("class", "y gridlines")
+              .attr("transform", "translate(" + (margin3.left - 10) + "," + margin3.top + ")")
+              .call(leftGridlines3);
+
+            // X axis
+            let bottomAxis3 = d3.axisBottom(yearScale)
+              .tickFormat(d3.format("d"));
+            let bottomGridlines3 = d3.axisBottom(yearScale)
+              .tickSize(-chartHeight3)
+              .tickFormat("")
+            annotations3.append("g")
+              .attr("class", "x axis")
+              .attr("transform", "translate(" + margin3.left + "," + (chartHeight3 + margin3.top) + ")")
+              .call(bottomAxis3);
+
+            annotations3.append("text")
+              .attr("transform", "translate(" + (chartWidth3 / 2 + margin3.left) + " ," + (chartHeight3 + margin3.top + 50) + ")")
+              .style("text-anchor", "middle")
+              .text("Year");
+
+            annotations3.append("g")
+              .attr("class", "x gridlines")
+              .attr("transform", "translate(" + margin3.left + "," + (chartHeight3 + margin3.top) + ")")
+              .call(bottomGridlines3);
+
+
+            // Draw lines
+            var linGen = d3.line()
+              .x(d => yearScale(d['year']))
+              .y(d => percentageScale(d['percentage']))
+              .curve(d3.curveMonotoneX);
+
+            chartArea3.append("path")
+              .datum(filteredNYData)
+              .attr("class", "line")
+              .attr("fill", "none")
+              .attr("stroke", "salmon")
+              .attr("stroke-width", "3px")
+              .attr("d", linGen);
+
+            chartArea3.append("path")
+              .datum(filteredCAData)
+              .attr("class", "line")
+              .attr("fill", "none")
+              .attr("stroke", "cornflowerblue")
+              .attr("stroke-width", "3px")
+              .attr("d", linGen);
+
+            // To avoid crowded graph, I exclude state WA and OR.
+
+            // chartArea.append("path")
+            //         .datum(filteredWAData)
+            //         .attr("class", "line")
+            //         .attr("fill", "none")
+            //         .attr("stroke", "#AF69EE")
+            //         .attr("stroke-width", "3px")
+            //         .attr("d", linGen);
+
+            // chartArea.append("path")
+            //         .datum(filteredORData)
+            //         .attr("class", "line")
+            //         .attr("fill", "none")
+            //         .attr("stroke", "#00A86B")
+            //         .attr("stroke-width", "3px")
+            //         .attr("d", linGen);
+
+            // Append shapes to discern
+            chartArea3.selectAll("circle")
+              .data(filteredNYData)
+              .join("circle")
+              .attr("r", 4)
+              .attr("cx", d => yearScale(d['year']))
+              .attr("cy", d => percentageScale(d['percentage']))
+              .attr("fill", "none")
+              .attr("stroke", "salmon")
+              .attr("stroke-width", "3px");
+
+            chartArea3.selectAll("rect")
+              .data(filteredCAData)
+              .join("rect")
+              .attr("width", 8)
+              .attr("height", 8)
+              .attr("x", d => yearScale(d['year']) - 2)
+              .attr("y", d => percentageScale(d['percentage']) - 2)
+              .attr("fill", "cornflowerblue");
+          })
+      </script>
+      <h4 id="graph_exp">
+        This graph contrasts the depression rate over time in New York and California between 2004 and 2017. We can see
+        how although one state is on the east coast and one is on the west coast, their rates of depression are quite
+        similar.
+      </h4>
+  </div>
+
+</body>
