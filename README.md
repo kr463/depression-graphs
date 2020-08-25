@@ -1,2 +1,2 @@
-# dv-mp1
-Mini project 1 for INFO3300
+# CS 3300
+A project written in JavaScript, HTML, CSS that invesitagates the relationships that race, gender, and income level have with depression rates in Canada through various visualizations.
